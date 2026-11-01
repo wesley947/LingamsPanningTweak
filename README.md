@@ -32,3 +32,7 @@ Please use [GitHub Issues](https://github.com/wesley947/LingamsPanningTweak/issu
 ## Credits
 
 Created and tested by **Lingam**, with AI assistance during development. This project is an optional gameplay tweak, not an official Vintage Story mod.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
