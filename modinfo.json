@@ -1,0 +1,15 @@
+{
+    "type":  "code",
+    "modid":  "lingamspanningtweak",
+    "name":  "Lingam\u0027s Panning Tweak",
+    "authors":  [
+                    "Lingam"
+                ],
+    "description":  "Allows panning beneath solid blocks and top-down collection from continuous stacks of pannable materials, preserving vanilla rewards and mechanics.",
+    "version":  "1.0.0",
+    "side":  "Universal",
+    "dependencies":  {
+                         "game":  "1.22.0",
+                         "survival":  "1.22.0"
+                     }
+}
