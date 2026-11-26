@@ -1,0 +1,88 @@
+name: Build Vintage Story 1.22.7 Wading Stability candidate
+
+on:
+  push:
+    branches:
+      - release/1.22.7-wading-stability
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout release candidate
+        uses: actions/checkout@v4
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Download official Vintage Story 1.22.7 server libraries
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://cdn.vintagestory.at/gamefiles/stable/vs_server_win-x64_1.22.7.zip'
+          $archivePath = Join-Path $env:RUNNER_TEMP 'vs-1227-server.zip'
+          $extractPath = Join-Path $env:RUNNER_TEMP 'vs-1227-server'
+          Invoke-WebRequest -Uri $url -OutFile $archivePath
+          Expand-Archive -LiteralPath $archivePath -DestinationPath $extractPath -Force
+          $api = Get-ChildItem -LiteralPath $extractPath -Filter 'VintagestoryAPI.dll' -Recurse -File | Select-Object -First 1
+          if ($null -eq $api) { throw 'VintagestoryAPI.dll not found in 1.22.7 server archive' }
+          $game = $api.DirectoryName
+          foreach ($required in @('Mods\VSSurvivalMod.dll', 'Lib\0Harmony.dll')) {
+            if (-not (Test-Path (Join-Path $game $required))) { throw "Missing $required in $game" }
+          }
+          "VINTAGE_STORY=$game" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Compiling against 1.22.7 libraries at $game"
+
+      - name: Compile against Vintage Story 1.22.7
+        shell: pwsh
+        run: dotnet build .\PanningMod.csproj --configuration Release
+
+      - name: Inspect and package release candidate ZIP
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dll = Get-ChildItem -Path '.\bin\Release' -Filter 'LingamsPanningTweak.dll' -Recurse -File | Select-Object -First 1
+          if ($null -eq $dll) { throw 'LingamsPanningTweak.dll missing from build' }
+          $metadata = Get-Content -LiteralPath '.\modinfo.json' -Raw | ConvertFrom-Json
+          if ($metadata.version -ne '1.1.0-rc.1' -or $metadata.dependencies.game -ne '1.22.0') {
+            throw 'Unexpected version or game compatibility metadata'
+          }
+          $stage = Join-Path $env:RUNNER_TEMP 'lingamspanningtweak-stage'
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          Copy-Item -LiteralPath $dll.FullName -Destination (Join-Path $stage 'LingamsPanningTweak.dll')
+          Copy-Item -LiteralPath '.\modinfo.json' -Destination $stage
+          Copy-Item -LiteralPath '.\modicon.png' -Destination $stage
+          $zip = '.\lingamspanningtweak_1.1.0-rc.1_vs1.22.7.zip'
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -Force
+          Add-Type -AssemblyName System.IO.Compression
+          $checkZip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $zip).Path)
+          try {
+            $entries = @($checkZip.Entries | ForEach-Object FullName)
+            foreach ($required in @('LingamsPanningTweak.dll','modinfo.json','modicon.png')) {
+              if ($required -notin $entries) { throw "ZIP is missing $required" }
+            }
+            Write-Host "Verified ZIP entries: $($entries -join ', ')"
+          } finally { $checkZip.Dispose() }
+
+      - name: Upload release candidate ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: lingamspanningtweak-1.1.0-rc.1-vs1.22.7
+          path: lingamspanningtweak_1.1.0-rc.1_vs1.22.7.zip
+          if-no-files-found: error
+
+      - name: Publish GitHub test prerelease
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-122rc]')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          gh release create 'v1.1.0-rc.1' '.\lingamspanningtweak_1.1.0-rc.1_vs1.22.7.zip' --title "Lingam's Panning Tweak v1.1.0-rc.1 (1.22.7 candidate)" --notes-file '.\RELEASE-NOTES-1.22.7-RC.md' --prerelease --target $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to publish the candidate' }

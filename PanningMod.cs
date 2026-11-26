@@ -1,6 +1,9 @@
+using System;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
+using Vintagestory.API.Server;
 using Vintagestory.API.MathTools;
 using Vintagestory.GameContent;
 
@@ -30,6 +33,54 @@ public class PanningModSystem : ModSystem
             activeInstances++;
             started = true;
         }
+    }
+
+    internal const string DriftAttributeKey = "lingamspanningtweakWaterDriftOn";
+
+    public override void StartServerSide(ICoreServerAPI api)
+    {
+        // /panning is a server command; each player's preference is saved and
+        // synchronized via WatchedAttributes to client-side player physics.
+        api.ChatCommands.Create("panning")
+            .WithDescription("Lingam's Panning Tweak options")
+            .RequiresPrivilege(Privilege.chat)
+            .RequiresPlayer()
+            .WithArgs(
+                api.ChatCommands.Parsers.OptionalWord("feature"),
+                api.ChatCommands.Parsers.OptionalWord("setting"))
+            .HandleWith(args =>
+            {
+                if (args.Caller.Player?.Entity == null)
+                    return TextCommandResult.Error("This command is available to players only.");
+
+                string feature = args[0] as string;
+                string setting = args[1] as string;
+
+                if (!string.Equals(feature, "drift", StringComparison.OrdinalIgnoreCase))
+                    return TextCommandResult.Success("Usage: /panning drift [on|off]");
+
+                var attributes = args.Caller.Player.Entity.WatchedAttributes;
+                bool driftOn = attributes.GetBool(DriftAttributeKey, false);
+
+                if (string.IsNullOrEmpty(setting))
+                    return TextCommandResult.Success(driftOn
+                        ? "Water drift is ON (vanilla behavior)."
+                        : "Water drift is OFF while wading on solid ground (Wading Stability active).");
+
+                if (string.Equals(setting, "on", StringComparison.OrdinalIgnoreCase))
+                    driftOn = true;
+                else if (string.Equals(setting, "off", StringComparison.OrdinalIgnoreCase))
+                    driftOn = false;
+                else
+                    return TextCommandResult.Error("Usage: /panning drift [on|off]");
+
+                attributes.SetBool(DriftAttributeKey, driftOn);
+                attributes.MarkPathDirty(DriftAttributeKey);
+
+                return TextCommandResult.Success(driftOn
+                    ? "Water drift ON: vanilla currents restored."
+                    : "Water drift OFF: Wading Stability active. Swimming and submerged currents remain unchanged.");
+            });
     }
 
     public override void Dispose()

@@ -3,19 +3,22 @@
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>LingamsPanningTweak</AssemblyName>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- By default build against the installed game; override for prerelease/CI. -->
+    <VintageStoryDir Condition="'$(VINTAGE_STORY)' != ''">$(VINTAGE_STORY)</VintageStoryDir>
+    <VintageStoryDir Condition="'$(VintageStoryDir)' == ''">$(APPDATA)\Vintagestory</VintageStoryDir>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="VintagestoryAPI">
-      <HintPath>$(APPDATA)\Vintagestory\VintagestoryAPI.dll</HintPath>
+      <HintPath>$(VintageStoryDir)\VintagestoryAPI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="VSSurvivalMod">
-      <HintPath>$(APPDATA)\Vintagestory\Mods\VSSurvivalMod.dll</HintPath>
+      <HintPath>$(VintageStoryDir)\Mods\VSSurvivalMod.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>$(APPDATA)\Vintagestory\Lib\0Harmony.dll</HintPath>
+      <HintPath>$(VintageStoryDir)\Lib\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
