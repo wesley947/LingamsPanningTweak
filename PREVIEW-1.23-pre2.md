@@ -1,6 +1,6 @@
 # 1.23.0-pre.2 development preview
 
-**Lingam's Panning Tweak 1.1.0-pre.1** is an experimental build for **Vintage Story 1.23.0-pre.2**. This branch is not a published ModDB release. All listed single-player gameplay checks for the current preview have been reported passing. Planned behavior refinements and a subsequent rebuild still require verification.
+**Lingam's Panning Tweak 1.1.0-pre.2** is an experimental build for **Vintage Story 1.23.0-pre.2**. This branch is not a published ModDB release. The earlier 1.1.0-pre.1 build passed the listed single-player gameplay tests. The 1.1.0-pre.2 default/submersion refinements still require in-game confirmation.
 
 ## Existing panning functionality
 
@@ -8,12 +8,12 @@
 - Consume the top block of a continuous vertical pannable stack.
 - Show which material will be collected when aiming below the top.
 
-## Optional water drift
+## Wading Stability / optional vanilla water drift
 
-This feature is **OFF by default** in the sense that no stabilization is applied: vanilla current drift is **ON** until a player opts out.
+**Wading Stability is ON by default** for players without a saved drift preference: horizontal drift is suppressed when grounded and eyes are above water. Explicit player choices are preserved, including choices saved by v1.1.0-pre.1.
 
-- `/panning drift off` — suppress only the horizontal flowing-water impulse while standing on solid ground.
-- `/panning drift on` — restore vanilla current drift.
+- `/panning drift off` — enable Wading Stability; suppress only the horizontal flowing-water impulse while grounded and not submerged.
+- `/panning drift on` — restore vanilla current drift, even while wading.
 - `/panning drift` — show the current setting.
 - `drift`, `on` and `off` are compared without regard to capitalization.
 - The setting is per-player and stored as a synchronized, persistent entity attribute.
@@ -38,11 +38,14 @@ Reported by tester on Vintage Story 1.23.0-pre.2 using mod 1.1.0-pre.1:
 
 **Test update:** On November 26, tester reported “all remaining tests passed” after separately confirming top-down panning and persistence. This applies to the existing preview build, not the planned revisions below.
 
-### Planned changes before release candidate
+### Changes in v1.1.0-pre.2 and remaining release checks
 
-- New players should have **Wading Stability enabled by default** (i.e., vanilla current drift OFF), preserving explicitly saved preferences.
-- Suppress drift only while grounded **and not submerged**. The current 1.1.0-pre.1 build checks grounded/not-swimming but does not yet explicitly check head submersion.
-- Rebuild and retest after these changes; do not describe the current preview as final/release ready.
+- [x] Code updated: New players have Wading Stability enabled by default; saved explicit choices persist.
+- [x] Code updated: When eyes are submerged, water-current push applies even if grounded. Swimming and jumping remain vanilla.
+- [x] Code updated: Exclude flowing lava from the wading correction.
+- [ ] Verify new binary compiles and ZIP contains the correct DLL, modinfo, and icon.
+- [ ] Smoke-test default, stored preferences, and submerged-grounded behavior in-game with v1.1.0-pre.2.
+- [ ] Multiplayer separately unverified; do not claim it tested.
 
 ## Building
 
