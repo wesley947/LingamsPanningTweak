@@ -8,7 +8,7 @@ namespace PanningMod;
 
 /// <summary>
 /// Reverses only the horizontal flowing-water impulse when a player is
-/// standing on the ground and has explicitly disabled drift.
+/// wading on the ground with drift disabled (the default).
 /// No player positions, other velocity sources, or swimming physics are changed.
 /// </summary>
 [HarmonyPatch(typeof(PModuleInLiquid), nameof(PModuleInLiquid.DoApply))]
@@ -21,13 +21,15 @@ internal static class GroundedWaterDriftPatch
     private static void Postfix(Entity entity, EntityPos pos, EntityControls controls)
     {
         // Never change animal physics, normal swimming, jumping, flight or noclip.
-        if (entity is not EntityPlayer || entity.Swimming || !entity.OnGround ||
-            !entity.FeetInLiquid || controls.Jump || controls.IsFlying || controls.NoClip)
+        if (entity is not EntityPlayer player || player.Swimming || !player.OnGround ||
+            !player.FeetInLiquid || player.IsEyesSubmerged() || controls.Jump ||
+            controls.IsFlying || controls.NoClip)
             return;
 
-        // No attribute means vanilla drift ON. This is set by /panning drift on|off
+        // No attribute means default Wading Stability ON (vanilla drift OFF).
+        // Explicit preferences are set by /panning drift on|off
         // on the server and synchronized to the owning client.
-        if (entity.WatchedAttributes.GetBool(PanningModSystem.DriftAttributeKey, true))
+        if (entity.WatchedAttributes.GetBool(PanningModSystem.DriftAttributeKey, false))
             return;
 
         var world = entity.World;
@@ -36,7 +38,7 @@ internal static class GroundedWaterDriftPatch
         lookupPos.Set(pos);
 
         Block water = blockAccessor.GetBlock(lookupPos, BlockLayersAccess.Fluid);
-        if (water is not IBlockFlowing flowing || flowing.IsStill)
+        if (water is not IBlockFlowing flowing || flowing.IsStill || flowing.IsLava)
             return;
 
         FastVec3f push = flowing.GetPushVector(lookupPos);
