@@ -5,7 +5,7 @@
   "authors": [
     "Lingam"
   ],
-  "description": "Allows panning beneath solid blocks, top-down collection from pannable stacks, and Wading Stability while grounded and above water, with vanilla currents when swimming or submerged.",
+  "description": "Improved panning and stable footing with Wading Stability.",
   "version": "1.1.0-pre.2",
   "side": "Universal",
   "dependencies": {
