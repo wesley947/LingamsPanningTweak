@@ -2,6 +2,8 @@
 
 **Vintage Story compatibility: 1.23.0-pre.2 only.** This is a prerelease for players testing Vintage Story 1.23.0-pre.2. Do not install it with 1.22.x.
 
+**Packaging update:** The in-game Mod Manager description has been shortened to a single concise line. No gameplay code or mod version was changed in this refresh.
+
 ## New: Wading Stability
 
 Let's face it, folks: when we're wading through a stream or panning for gold in real life, we don't helplessly float away every time the water moves! We're generally heavy enough to keep our footing in waist-deep, moderately flowing water.
