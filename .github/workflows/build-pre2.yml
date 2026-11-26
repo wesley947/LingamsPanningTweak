@@ -1,0 +1,64 @@
+name: Build Pre2 panning preview
+
+on:
+  push:
+    branches:
+      - preview/1.23.0-pre.2-water-drift
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Download official Vintage Story 1.23.0-pre.2 server binaries
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://cdn.vintagestory.at/gamefiles/pre/vs_server_win-x64_1.23.0-pre.2.zip'
+          $archive = Join-Path $env:RUNNER_TEMP 'vs-pre2-server.zip'
+          $extract = Join-Path $env:RUNNER_TEMP 'vs-pre2-server'
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          Expand-Archive -LiteralPath $archive -DestinationPath $extract -Force
+          $api = Get-ChildItem -LiteralPath $extract -Filter 'VintagestoryAPI.dll' -Recurse -File | Select-Object -First 1
+          if ($null -eq $api) { throw 'VintagestoryAPI.dll not found in Pre2 server package' }
+          $game = $api.DirectoryName
+          foreach ($required in @('Mods\VSSurvivalMod.dll', 'Lib\0Harmony.dll')) {
+            if (-not (Test-Path (Join-Path $game $required))) { throw "Missing $required in $game" }
+          }
+          "VINTAGE_STORY=$game" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Build references: $game"
+
+      - name: Compile mod against Pre2 game libraries
+        shell: pwsh
+        run: dotnet build .\PanningMod.csproj --configuration Release
+
+      - name: Create test ZIP
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dll = Get-ChildItem -Path '.\bin\Release' -Filter 'LingamsPanningTweak.dll' -Recurse -File | Select-Object -First 1
+          if ($null -eq $dll) { throw 'Mod DLL missing after build' }
+          $stage = Join-Path $env:RUNNER_TEMP 'lingamspanningtweak-stage'
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          Copy-Item -LiteralPath $dll.FullName -Destination (Join-Path $stage 'LingamsPanningTweak.dll')
+          Copy-Item -LiteralPath '.\modinfo.json' -Destination $stage
+          Copy-Item -LiteralPath '.\modicon.png' -Destination $stage
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath '.\lingamspanningtweak_1.1.0-pre.1_vs1.23.0-pre.2.zip' -Force
+
+      - name: Upload test ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lingamspanningtweak-1.1.0-pre.1-vs1.23.0-pre.2
+          path: lingamspanningtweak_1.1.0-pre.1_vs1.23.0-pre.2.zip
+          if-no-files-found: error
