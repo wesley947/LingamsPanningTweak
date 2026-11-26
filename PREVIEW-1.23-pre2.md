@@ -1,6 +1,6 @@
 # 1.23.0-pre.2 development preview
 
-**Lingam's Panning Tweak 1.1.0-pre.2** is an experimental build for **Vintage Story 1.23.0-pre.2**. This branch is not a published ModDB release. The earlier 1.1.0-pre.1 build passed the listed single-player gameplay tests. The 1.1.0-pre.2 default/submersion refinements still require in-game confirmation.
+**Lingam's Panning Tweak 1.1.0-pre.2** is an experimental build for **Vintage Story 1.23.0-pre.2**. This branch is not a published ModDB release. The earlier 1.1.0-pre.1 build passed the listed single-player gameplay tests, and the tester confirmed v1.1.0-pre.2 gameplay tests passed on November 26, 2026. The metadata-only shortened Mod Manager description was rebuilt and published to the existing GitHub prerelease.
 
 ## Existing panning functionality
 
@@ -44,7 +44,7 @@ Reported by tester on Vintage Story 1.23.0-pre.2 using mod 1.1.0-pre.1:
 - [x] Code updated: When eyes are submerged, water-current push applies even if grounded. Swimming and jumping remain vanilla.
 - [x] Code updated: Exclude flowing lava from the wading correction.
 - [x] Matching 1.23.0-pre.2 build completed with 0 warnings and 0 errors; GitHub Actions packaged and uploaded the mod ZIP (run 45887569529, artifact 15149753290).
-- [ ] Smoke-test default, stored preferences, and submerged-grounded behavior in-game with v1.1.0-pre.2.
+- [x] Tester confirmed v1.1.0-pre.2 in-game checks passed on November 26, 2026, including the final wading behavior checks. Prior explicit setting persistence testing was on v1.1.0-pre.1.
 - [ ] Multiplayer separately unverified; do not claim it tested.
 
 ## Building
