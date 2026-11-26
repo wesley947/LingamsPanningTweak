@@ -5,6 +5,9 @@ on:
     branches:
       - preview/1.23.0-pre.2-water-drift
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
