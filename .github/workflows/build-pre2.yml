@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: lingamspanningtweak-1.1.0-pre.2-vs1.23.0-pre.2
-          path: lingamspanningtweak_1.1.0-pre.1_vs1.23.0-pre.2.zip
+          path: lingamspanningtweak_1.1.0-pre.2_vs1.23.0-pre.2.zip
           if-no-files-found: error
 
       # Only publish when the final commit explicitly opts in; normal pushes
