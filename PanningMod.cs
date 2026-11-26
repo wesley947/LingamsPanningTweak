@@ -60,12 +60,12 @@ public class PanningModSystem : ModSystem
                     return TextCommandResult.Success("Usage: /panning drift [on|off]");
 
                 var attributes = args.Caller.Player.Entity.WatchedAttributes;
-                bool driftOn = attributes.GetBool(DriftAttributeKey, true);
+                bool driftOn = attributes.GetBool(DriftAttributeKey, false);
 
                 if (string.IsNullOrEmpty(setting))
                     return TextCommandResult.Success(driftOn
                         ? "Water drift is ON (vanilla behavior)."
-                        : "Water drift is OFF while standing on solid ground.");
+                        : "Water drift is OFF while wading on solid ground (Wading Stability active).");
 
                 if (string.Equals(setting, "on", StringComparison.OrdinalIgnoreCase))
                     driftOn = true;
@@ -79,7 +79,7 @@ public class PanningModSystem : ModSystem
 
                 return TextCommandResult.Success(driftOn
                     ? "Water drift ON: vanilla currents restored."
-                    : "Water drift OFF: grounded current push suppressed. Swimming remains unchanged.");
+                    : "Water drift OFF: Wading Stability active. Swimming and submerged currents remain unchanged.");
             });
     }
 
