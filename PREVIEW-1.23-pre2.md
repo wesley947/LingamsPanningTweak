@@ -1,6 +1,6 @@
 # 1.23.0-pre.2 development preview
 
-**Lingam's Panning Tweak 1.1.0-pre.1** is an experimental build for **Vintage Story 1.23.0-pre.2**. This branch is not a published ModDB release and has not yet been tested in-game.
+**Lingam's Panning Tweak 1.1.0-pre.1** is an experimental build for **Vintage Story 1.23.0-pre.2**. This branch is not a published ModDB release. Initial in-game tests are passing; full regression testing is still in progress.
 
 ## Existing panning functionality
 
@@ -19,15 +19,28 @@ This feature is **OFF by default** in the sense that no stabilization is applied
 - The setting is per-player and stored as a synchronized, persistent entity attribute.
 - Ordinary swimming, jumping, animal movement, vertical fluid movement, walking, other forces, and panning rewards are intended to remain unchanged.
 
-## Test checklist before public release
+## In-game test record — November 26, 2026
 
-1. Start a disposable or backed-up Pre2 world; verify the mod loads without Harmony exceptions.
-2. Repeat covered-block and mixed vertical-stack panning tests.
-3. Standing in shallow flowing water: `/panning drift off` should prevent horizontal current drift.
-4. Restore `/panning drift on` and confirm vanilla current behavior returns.
-5. Confirm walking, jumping, swimming, knockback, and animal motion remain vanilla.
-6. Save and reopen the world: the drift setting should persist.
-7. Test multiplayer sync separately before claiming multiplayer support.
+Reported by tester on Vintage Story 1.23.0-pre.2 using mod 1.1.0-pre.1:
+
+- [x] Starts and loads without a reported panning-mod or Harmony startup exception.
+- [x] Ordinary panning works (at least two successful panning actions).
+- [x] Top-down panning / top-of-stack collection works.
+- [x] `/panning drift off` immediately stops horizontal drift while grounded in flowing water.
+- [x] Walking and panning normally with drift off still work.
+- [x] Explicit drift state persists across closing and re-entering the game.
+- [ ] Panning with an overhead solid block remains to be tested.
+- [ ] Verify top-of-stack tooltip and mixed-material vertical stacks.
+- [ ] `/panning drift on` restores vanilla current behavior.
+- [ ] Jumping, swimming, fully submerged footing, knockback, and animal movement are unchanged.
+- [ ] Verify feature behavior at shoreline/ground-contact transitions.
+- [ ] Validate in multiplayer before claiming multiplayer compatibility.
+
+### Planned changes before release candidate
+
+- New players should have **Wading Stability enabled by default** (i.e., vanilla current drift OFF), preserving explicitly saved preferences.
+- Suppress drift only while grounded **and not submerged**. The current 1.1.0-pre.1 build checks grounded/not-swimming but does not yet explicitly check head submersion.
+- Rebuild and retest after these changes; do not describe the current preview as final/release ready.
 
 ## Building
 
