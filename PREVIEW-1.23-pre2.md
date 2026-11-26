@@ -43,7 +43,7 @@ Reported by tester on Vintage Story 1.23.0-pre.2 using mod 1.1.0-pre.1:
 - [x] Code updated: New players have Wading Stability enabled by default; saved explicit choices persist.
 - [x] Code updated: When eyes are submerged, water-current push applies even if grounded. Swimming and jumping remain vanilla.
 - [x] Code updated: Exclude flowing lava from the wading correction.
-- [ ] Verify new binary compiles and ZIP contains the correct DLL, modinfo, and icon.
+- [x] Matching 1.23.0-pre.2 build completed with 0 warnings and 0 errors; GitHub Actions packaged and uploaded the mod ZIP (run 45887569529, artifact 15149753290).
 - [ ] Smoke-test default, stored preferences, and submerged-grounded behavior in-game with v1.1.0-pre.2.
 - [ ] Multiplayer separately unverified; do not claim it tested.
 
@@ -61,3 +61,5 @@ dotnet build .\\PanningMod.csproj -c Release
 GitHub Actions on this branch is configured to download the public Pre2 server package to obtain matching game API assemblies, compile the DLL, and package a ZIP for testing. Its success still does not constitute in-game verification.
 
 **The main branch and 1.0.0 ModDB release remain unchanged.**
+
+**GitHub prerelease v1.1.0-pre.2 publishing requested November 26, 2026.** This remains a prerelease pending the short in-game confirmation of the changed default/submersion behavior; it is not yet published to Vintage Story ModDB.
