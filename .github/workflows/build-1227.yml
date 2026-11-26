@@ -1,4 +1,4 @@
-name: Build Vintage Story 1.22.7 Wading Stability candidate
+name: Build Vintage Story 1.22.7 Wading Stability
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Checkout release candidate
+      - name: Checkout 1.22.7 release
         uses: actions/checkout@v4
 
       - name: Install .NET 10 SDK
@@ -43,14 +43,14 @@ jobs:
         shell: pwsh
         run: dotnet build .\PanningMod.csproj --configuration Release
 
-      - name: Inspect and package release candidate ZIP
+      - name: Inspect and package release ZIP
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $dll = Get-ChildItem -Path '.\bin\Release' -Filter 'LingamsPanningTweak.dll' -Recurse -File | Select-Object -First 1
           if ($null -eq $dll) { throw 'LingamsPanningTweak.dll missing from build' }
           $metadata = Get-Content -LiteralPath '.\modinfo.json' -Raw | ConvertFrom-Json
-          if ($metadata.version -ne '1.1.0-rc.1' -or $metadata.dependencies.game -ne '1.22.0') {
+          if ($metadata.version -ne '1.1.0' -or $metadata.dependencies.game -ne '1.22.0') {
             throw 'Unexpected version or game compatibility metadata'
           }
           $stage = Join-Path $env:RUNNER_TEMP 'lingamspanningtweak-stage'
@@ -58,7 +58,7 @@ jobs:
           Copy-Item -LiteralPath $dll.FullName -Destination (Join-Path $stage 'LingamsPanningTweak.dll')
           Copy-Item -LiteralPath '.\modinfo.json' -Destination $stage
           Copy-Item -LiteralPath '.\modicon.png' -Destination $stage
-          $zip = '.\lingamspanningtweak_1.1.0-rc.1_vs1.22.7.zip'
+          $zip = '.\lingamspanningtweak_1.1.0_vs1.22.7.zip'
           Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -Force
           Add-Type -AssemblyName System.IO.Compression
           $checkZip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $zip).Path)
@@ -70,19 +70,19 @@ jobs:
             Write-Host "Verified ZIP entries: $($entries -join ', ')"
           } finally { $checkZip.Dispose() }
 
-      - name: Upload release candidate ZIP
+      - name: Upload release ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: lingamspanningtweak-1.1.0-rc.1-vs1.22.7
-          path: lingamspanningtweak_1.1.0-rc.1_vs1.22.7.zip
+          name: lingamspanningtweak-1.1.0-vs1.22.7
+          path: lingamspanningtweak_1.1.0_vs1.22.7.zip
           if-no-files-found: error
 
-      - name: Publish GitHub test prerelease
-        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-122rc]')
+      - name: Publish GitHub v1.1.0 release
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-122]')
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-          gh release create 'v1.1.0-rc.1' '.\lingamspanningtweak_1.1.0-rc.1_vs1.22.7.zip' --title "Lingam's Panning Tweak v1.1.0-rc.1 (1.22.7 candidate)" --notes-file '.\RELEASE-NOTES-1.22.7-RC.md' --prerelease --target $env:GITHUB_SHA
-          if ($LASTEXITCODE -ne 0) { throw 'Failed to publish the candidate' }
+          gh release create 'v1.1.0' '.\lingamspanningtweak_1.1.0_vs1.22.7.zip' --title "Lingam's Panning Tweak v1.1.0 (Vintage Story 1.22.7)" --notes-file '.\RELEASE-NOTES-1.1.0.md' --latest=false --target $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to publish v1.1.0' }
