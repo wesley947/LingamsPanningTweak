@@ -1,6 +1,6 @@
 # 1.23.0-pre.2 development preview
 
-**Lingam's Panning Tweak 1.1.0-pre.1** is an experimental build for **Vintage Story 1.23.0-pre.2**. This branch is not a published ModDB release. Initial in-game tests are passing; full regression testing is still in progress.
+**Lingam's Panning Tweak 1.1.0-pre.1** is an experimental build for **Vintage Story 1.23.0-pre.2**. This branch is not a published ModDB release. All listed single-player gameplay checks for the current preview have been reported passing. Planned behavior refinements and a subsequent rebuild still require verification.
 
 ## Existing panning functionality
 
@@ -29,12 +29,14 @@ Reported by tester on Vintage Story 1.23.0-pre.2 using mod 1.1.0-pre.1:
 - [x] `/panning drift off` immediately stops horizontal drift while grounded in flowing water.
 - [x] Walking and panning normally with drift off still work.
 - [x] Explicit drift state persists across closing and re-entering the game.
-- [ ] Panning with an overhead solid block remains to be tested.
-- [ ] Verify top-of-stack tooltip and mixed-material vertical stacks.
-- [ ] `/panning drift on` restores vanilla current behavior.
-- [ ] Jumping, swimming, fully submerged footing, knockback, and animal movement are unchanged.
-- [ ] Verify feature behavior at shoreline/ground-contact transitions.
-- [ ] Validate in multiplayer before claiming multiplayer compatibility.
+- [x] Panning with an overhead solid block works (tester-reported).
+- [x] Top-of-stack tooltip and mixed-material vertical stacks (tester reports all remaining gameplay tests passed).
+- [x] `/panning drift on` restores vanilla current behavior (tester-reported).
+- [x] Jumping, swimming, submerged-water behavior, knockback, and animal movement reported passing with current preview. Recheck submerged grounded behavior after the explicit head-submersion change.
+- [x] Feature behavior at shoreline/ground-contact transitions (tester reports all remaining gameplay tests passed).
+- [ ] Multiplayer verification has not been separately confirmed; do not claim it tested.
+
+**Test update:** On November 26, tester reported “all remaining tests passed” after separately confirming top-down panning and persistence. This applies to the existing preview build, not the planned revisions below.
 
 ### Planned changes before release candidate
 
