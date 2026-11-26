@@ -1,4 +1,4 @@
-name: Build Pre2 panning preview
+name: Build and optionally publish Pre2 panning preview
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -46,7 +46,7 @@ jobs:
         shell: pwsh
         run: dotnet build .\PanningMod.csproj --configuration Release
 
-      - name: Create test ZIP
+      - name: Create prerelease ZIP
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -57,11 +57,22 @@ jobs:
           Copy-Item -LiteralPath $dll.FullName -Destination (Join-Path $stage 'LingamsPanningTweak.dll')
           Copy-Item -LiteralPath '.\modinfo.json' -Destination $stage
           Copy-Item -LiteralPath '.\modicon.png' -Destination $stage
-          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath '.\lingamspanningtweak_1.1.0-pre.1_vs1.23.0-pre.2.zip' -Force
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath '.\lingamspanningtweak_1.1.0-pre.2_vs1.23.0-pre.2.zip' -Force
 
-      - name: Upload test ZIP artifact
+      - name: Upload prerelease ZIP artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lingamspanningtweak-1.1.0-pre.1-vs1.23.0-pre.2
+          name: lingamspanningtweak-1.1.0-pre.2-vs1.23.0-pre.2
           path: lingamspanningtweak_1.1.0-pre.1_vs1.23.0-pre.2.zip
           if-no-files-found: error
+
+      # Only publish when the final commit explicitly opts in; normal pushes
+      # still run build+packaging but cannot accidentally publish a release.
+      - name: Publish GitHub prerelease
+        if: github.event_name == 'push' && contains(github.event.head_commit.message, '[publish-pre2]')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          gh release create 'v1.1.0-pre.2' '.\lingamspanningtweak_1.1.0-pre.2_vs1.23.0-pre.2.zip' --title "Lingam's Panning Tweak v1.1.0-pre.2 (VS 1.23.0-pre.2)" --notes-file '.\RELEASE-NOTES-1.1.0-pre.2.md' --prerelease --target $env:GITHUB_SHA
